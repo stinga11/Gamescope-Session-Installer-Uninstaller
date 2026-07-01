@@ -1,0 +1,87 @@
+#!/bin/bash
+set -e
+
+die() { echo >&2 "!! $*"; exit 1; }
+
+CONF_FILE="/etc/lightdm/lightdm.conf.d/zz-steamos-autologin.conf"
+
+# Sanity check
+[[ -f "$CONF_FILE" ]] || die "Config file $CONF_FILE not found - is this a valid setup?"
+
+case "$1" in
+    'persistent'|'oneshot'|'gamescope'|'plasma')
+        ;;
+    *)
+        [[ -n "$1" ]] && echo -e "Unknown session '$1'\n"
+        cat <<EOF
+Usage: $(basename "$0") <mode>
+
+Modes:
+  persistent
+      Enable persistent session mode.
+      The system will remember the last session you used and boot into it
+      next time. If you last used Gamescope, it will boot into Gamescope.
+      If you last used the desktop, it will boot into the desktop.
+
+  oneshot
+      Restore default oneshot behaviour.
+      Every fresh boot will start in Gamescope first, regardless of the
+      previously used session.
+
+  gamescope
+      Immediately switch to the Gamescope session.
+
+  plasma
+      Immediately switch to the desktop session.
+      This is the same action triggered by Steam's "Switch to Desktop".
+
+Example:
+    $(basename "$0") persistent
+EOF
+        exit 1;;
+esac
+
+# Step 1: user-level operations (must run as the real user, not root)
+if [[ $EUID != 0 ]]; then
+    case "$1" in
+        'persistent')
+            systemctl --user mask cachyos-gamescope-autologin.service;;
+        'oneshot')
+            systemctl --user unmask cachyos-gamescope-autologin.service;;
+    esac
+
+    # Re-execute as root for the conf write + lightdm restart
+    exec pkexec "$(realpath "$0")" "$1"
+    exit 1
+fi
+
+# Step 2: running as root - write conf and restart LightDM
+case "$1" in
+    'persistent')
+        SESSION_LAUNCHER="cinnamon";;
+    'oneshot'|'gamescope')
+        SESSION_LAUNCHER="gamescope-session";;
+    'plasma')
+        SESSION_LAUNCHER="cinnamon";;
+esac
+
+{
+    echo "[Seat:*]"
+    echo "autologin-session=$SESSION_LAUNCHER"
+} > "$CONF_FILE"
+
+echo "Updated autologin session to $SESSION_LAUNCHER"
+
+# persistent/oneshot only update the conf, no need to restart lightdm
+# (change takes effect on next boot/login naturally)
+if [[ "$1" == "gamescope" || "$1" == "plasma" ]]; then
+    systemctl reset-failed lightdm
+    systemctl restart lightdm
+    echo "Restarted LightDM"
+fi
+
+if [[ -e /dev/input/.hidden ]]; then
+    echo "Unhide hidden controller devices as needed"
+    mv /dev/input/.hidden/* /dev/input
+    rm -r /dev/input/.hidden
+fi
