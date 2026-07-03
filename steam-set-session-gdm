@@ -15,18 +15,11 @@ fi
 USER_NAME="${GDMUSER:-${SUDO_USER:-$(logname 2>/dev/null || whoami)}}"
 : "${USER_NAME:?No se pudo determinar el usuario}"
 
-# ------------------------------------------------------------------
-# 3. Configuración de la Sesión en AccountsService (Wayland Puro)
-# ------------------------------------------------------------------
-ACCOUNTS_USER_FILE="/var/lib/AccountsService/users/$USER_NAME"
-
-[[ -f "$ACCOUNTS_USER_FILE" ]] || {
-    echo "Error: No existe $ACCOUNTS_USER_FILE" >&2
-    exit 1
-}
-
 SESSION="${1:-gamescope-session}"
 
+# ------------------------------------------------------------------
+# Función auxiliar — debe estar definida ANTES de usarse
+# ------------------------------------------------------------------
 set_or_add() {
     local file="$1"
     local key="$2"
@@ -40,7 +33,22 @@ set_or_add() {
     fi
 }
 
-set_or_add "$ACCOUNTS_USER_FILE" "Session" "$SESSION" "User"
+# ------------------------------------------------------------------
+# 3. Configuración de la Sesión en AccountsService (Wayland Puro)
+# ------------------------------------------------------------------
+ACCOUNTS_USER_FILE="/var/lib/AccountsService/users/$USER_NAME"
+
+if [[ ! -f "$ACCOUNTS_USER_FILE" ]]; then
+    echo "Creando $ACCOUNTS_USER_FILE para el usuario $USER_NAME..." >&2
+    mkdir -p "$(dirname "$ACCOUNTS_USER_FILE")"
+    cat > "$ACCOUNTS_USER_FILE" << EOF
+[User]
+Session=$SESSION
+SystemAccount=false
+EOF
+else
+    set_or_add "$ACCOUNTS_USER_FILE" "Session" "$SESSION" "User"
+fi
 
 # ------------------------------------------------------------------
 # 4. Configuración del Autologin (TimedLogin) en custom.conf
