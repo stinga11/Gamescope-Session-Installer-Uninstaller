@@ -40,7 +40,6 @@ ACCOUNTS_USER_FILE="/var/lib/AccountsService/users/$USER_NAME"
 
 if [[ ! -f "$ACCOUNTS_USER_FILE" ]]; then
     echo "Creando $ACCOUNTS_USER_FILE para el usuario $USER_NAME..." >&2
-    mkdir -p "$(dirname "$ACCOUNTS_USER_FILE")"
     cat > "$ACCOUNTS_USER_FILE" << EOF
 [User]
 Session=$SESSION
