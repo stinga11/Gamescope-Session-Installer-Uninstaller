@@ -1,11 +1,29 @@
 #!/bin/bash
 set -e
 
-CONF_FILE="/etc/gdm/custom.conf"
+# ------------------------------------------------------------------
+# 1. Verificar que GDM esté activo antes de hacer nada
+# ------------------------------------------------------------------
+if ! systemctl is-active --quiet gdm; then
+    echo "gdm no está activo, abortando." >&2
+    exit 1
+fi
 
+# ------------------------------------------------------------------
+# 2. Determinar el usuario de forma robusta
+# ------------------------------------------------------------------
 USER_NAME="${GDMUSER:-${SUDO_USER:-$(logname 2>/dev/null || whoami)}}"
-
 : "${USER_NAME:?No se pudo determinar el usuario}"
+
+# ------------------------------------------------------------------
+# 3. Configuración de la Sesión en AccountsService (Wayland Puro)
+# ------------------------------------------------------------------
+ACCOUNTS_USER_FILE="/var/lib/AccountsService/users/$USER_NAME"
+
+[[ -f "$ACCOUNTS_USER_FILE" ]] || {
+    echo "Error: No existe $ACCOUNTS_USER_FILE" >&2
+    exit 1
+}
 
 SESSION="${1:-gamescope-session}"
 
@@ -22,27 +40,15 @@ set_or_add() {
     fi
 }
 
-# Verificamos si GDM está activo/corriendo antes de proceder
-if systemctl is-active --quiet gdm; then
+set_or_add "$ACCOUNTS_USER_FILE" "Session" "$SESSION" "User"
 
-    # ------------------------------------------------------------------
-    # 2. Configuración de la Sesión en AccountsService (Wayland Puro)
-    # ------------------------------------------------------------------
-    ACCOUNTS_USER_FILE="/var/lib/AccountsService/users/$USER_NAME"
+# ------------------------------------------------------------------
+# 4. Configuración del Autologin (TimedLogin) en custom.conf
+# ------------------------------------------------------------------
+CONF_FILE="/etc/gdm/custom.conf"
 
-    [[ -f "$ACCOUNTS_USER_FILE" ]] || {
-        echo "Error: No existe $ACCOUNTS_USER_FILE"
-        exit 1
-    }
-
-    set_or_add "$ACCOUNTS_USER_FILE" "Session" "$SESSION" "User"
-
-    # ------------------------------------------------------------------
-    # 3. Configuración del Autologin (TimedLogin) en custom.conf
-    # ------------------------------------------------------------------
-    if [[ -f "$CONF_FILE" ]]; then
-        set_or_add "$CONF_FILE" "TimedLoginEnable" "true" "daemon"
-        set_or_add "$CONF_FILE" "TimedLoginDelay" "1" "daemon"
-        set_or_add "$CONF_FILE" "TimedLogin" "$USER_NAME" "daemon"
-    fi
+if [[ -f "$CONF_FILE" ]]; then
+    set_or_add "$CONF_FILE" "TimedLoginEnable" "true" "daemon"
+    set_or_add "$CONF_FILE" "TimedLoginDelay" "1" "daemon"
+    set_or_add "$CONF_FILE" "TimedLogin" "$USER_NAME" "daemon"
 fi
