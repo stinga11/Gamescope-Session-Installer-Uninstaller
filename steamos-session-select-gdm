@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+
+
+case "$1" in
+    'persistent')
+        systemctl --user mask cachyos-gamescope-autologin.service
+        pkexec /usr/lib/steamos/steam-set-session gnome;;
+    'oneshot')
+        systemctl --user unmask cachyos-gamescope-autologin.service
+        pkexec /usr/lib/steamos/steam-set-session gamescope-session;;
+    'gamescope')
+        pkexec /usr/lib/steamos/steam-set-session gamescope-session
+        gnome-session-quit --no-prompt;;
+    'plasma')
+        pkexec /usr/lib/steamos/steam-set-session gnome
+        steam -shutdown
+        systemctl --user stop gamescope-session.target
+        while systemctl --user is-active --quiet gamescope-session.target; do
+            sleep 0.5
+        done
+        loginctl terminate-user "$USER";;
+    *)
+        [[ -n "$1" ]] && echo -e "Unknown session '$1'\n"
+        cat <<EOF
+Usage: $(basename "$0") <mode>
+
+Modes:
+  persistent
+      Enable persistent session mode.
+      The system will remember the last session you used and boot into it
+      next time. If you last used Gamescope, it will boot into Gamescope.
+      If you last used the desktop, it will boot into the desktop.
+
+  oneshot
+      Restore default oneshot behaviour.
+      Every fresh boot will start in Gamescope first, regardless of the
+      previously used session.
+
+  gamescope
+      Immediately switch to the Gamescope session.
+
+  plasma
+      Immediately switch to the desktop session.
+      This is the same action triggered by Steam's "Switch to Desktop".
+
+Example:
+    $(basename "$0") persistent
+EOF
+
+        exit 1;;
+esac
+
+if [[ -e /dev/input/.hidden ]]; then
+    echo "Unhide hidden controller devices as needed"
+    pkexec mv /dev/input/.hidden/* /dev/input
+    pkexec rm -r /dev/input/.hidden
+fi
