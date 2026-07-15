@@ -11,10 +11,8 @@ case "$1" in
         pkexec /usr/lib/steamos/steam-set-session gamescope-session;;
     'gamescope')
         pkexec /usr/lib/steamos/steam-set-session gamescope-session
-        RESOLUTION=$(xrandr --current 2>/dev/null | grep '\*' | awk '{print $1}' | head -1)
-        MAX_X=$(echo $RESOLUTION | cut -dx -f1)
-        MAX_Y=$(echo $RESOLUTION | cut -dx -f2)
-        wdotool --backend gnome mousemove $((MAX_X - 1)) $((MAX_Y - 1))
+        wdotool --backend gnome mousemove 0 0
+        sleep 0.1
         gnome-session-quit --no-prompt;;
     'plasma')
         pkexec /usr/lib/steamos/steam-set-session gnome
