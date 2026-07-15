@@ -17,7 +17,7 @@ sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos
 
 
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/cachyos-gamescope-autologin.service /usr/lib/systemd/user/cachyos-gamescope-autologin.service
-sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/galileo-mura-setup.service /usr/lib/systemd/user/galileo-mura-setup.service
+#sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/galileo-mura-setup.service /usr/lib/systemd/user/galileo-mura-setup.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-mangoapp.service /usr/lib/systemd/user/gamescope-mangoapp.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-session.service /usr/lib/systemd/user/gamescope-session.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-session.target /usr/lib/systemd/user/gamescope-session.target
