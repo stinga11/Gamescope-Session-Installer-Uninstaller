@@ -21,7 +21,6 @@ sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-mangoapp.service /usr/lib/systemd/user/gamescope-mangoapp.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-session.service /usr/lib/systemd/user/gamescope-session.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-session.target /usr/lib/systemd/user/gamescope-session.target
-sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/gamescope-xbindkeys.service /usr/lib/systemd/user/gamescope-xbindkeys.service
 sudo mkdir -p /usr/lib/systemd/user/graphical-session.target.wants/ && sudo ln -sf /usr/lib/systemd/user/cachyos-gamescope-autologin.service /usr/lib/systemd/user/graphical-session.target.wants/cachyos-gamescope-autologin.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/ibus-gamescope.service /usr/lib/systemd/user/ibus-gamescope.service
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/systemd/user/steam-launcher.service /usr/lib/systemd/user/steam-launcher.service
