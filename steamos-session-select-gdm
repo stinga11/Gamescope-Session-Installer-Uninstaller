@@ -11,9 +11,12 @@ case "$1" in
         pkexec /usr/lib/steamos/steam-set-session gamescope-session;;
     'gamescope')
         pkexec /usr/lib/steamos/steam-set-session gamescope-session
-        wdotool --backend gnome mousemove 0 0
-        sleep 0.1
-        gnome-session-quit --no-prompt;;
+        CURRENT_SESSION=$(loginctl list-sessions --no-legend | grep "$USER" | awk '{print $1}' | head -1)
+        gnome-session-quit --no-prompt
+        while loginctl show-session "$CURRENT_SESSION" &>/dev/null; do
+            sleep 0.5
+        done
+        loginctl terminate-user "$USER";;
     'plasma')
         pkexec /usr/lib/steamos/steam-set-session gnome
         steam -shutdown
