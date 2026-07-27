@@ -10,7 +10,7 @@ sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/bin/steamos
 
 
 sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/gamescope-session /usr/lib/steamos/gamescope-session
-sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/steam-launcher /usr/lib/steamos/steam-launcher
+#sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/steam-launcher /usr/lib/steamos/steam-launcher
 sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/steam-set-session /usr/lib/steamos/steam-set-session
 sudo install -D -m 755 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/steam-short-session-tracker /usr/lib/steamos/steam-short-session-tracker
 sudo install -D -m 644 $HOME/Downloads/gamescope-session-cachyos/usr/lib/steamos/steamos-shellutil.sh /usr/lib/steamos/steamos-shellutil.sh
